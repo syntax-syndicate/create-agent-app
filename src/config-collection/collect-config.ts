@@ -1,6 +1,11 @@
 import { select, input, password } from "@inquirer/prompts";
 import chalk from "chalk";
-import type { ProjectConfig, CodingAssistant, LLMProvider } from "../types.js";
+import type {
+  ProjectConfig,
+  AgentFramework,
+  CodingAssistant,
+  LLMProvider,
+} from "../types.js";
 import { buildLanguageChoices } from "./choice-builders/language-choices.js";
 import { buildFrameworkChoices } from "./choice-builders/framework-choices.js";
 import { validateOpenAIKey } from "./validators/openai-key.js";
@@ -29,7 +34,7 @@ export const collectConfig = async (): Promise<ProjectConfig> => {
     choices: buildLanguageChoices(),
   });
 
-  const framework = await select({
+  const framework = await select<AgentFramework>({
     message: "What agent framework do you want to use?",
     choices: buildFrameworkChoices({ language }),
   });

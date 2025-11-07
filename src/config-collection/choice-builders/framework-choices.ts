@@ -1,4 +1,5 @@
 import type { AgentFramework, ProgrammingLanguage } from "../../types.js";
+import { getFrameworksByLanguage } from "../../providers/frameworks/index.js";
 
 /**
  * Builds framework choices based on the selected programming language.
@@ -10,7 +11,6 @@ import type { AgentFramework, ProgrammingLanguage } from "../../types.js";
  * @example
  * ```ts
  * const choices = buildFrameworkChoices({ language: 'python' });
- * // Returns: [{ name: 'Agno', value: 'agno' }]
  * ```
  */
 export const buildFrameworkChoices = ({
@@ -18,7 +18,8 @@ export const buildFrameworkChoices = ({
 }: {
   language: ProgrammingLanguage;
 }) => {
-  return language === "python"
-    ? [{ name: "Agno", value: "agno" as AgentFramework }]
-    : [{ name: "Mastra", value: "mastra" as AgentFramework }];
+  return getFrameworksByLanguage({ language }).map((provider) => ({
+    name: provider.displayName,
+    value: provider.id as AgentFramework,
+  }));
 };

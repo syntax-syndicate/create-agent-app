@@ -4,9 +4,9 @@ import chalk from "chalk";
 import ora from "ora";
 import { collectConfig } from "../config-collection/collect-config.js";
 import { createProjectStructure } from "../project-scaffolding/create-project-structure.js";
-import { setupMCPServers } from "../tool-setup/mcp/setup-mcp-servers.js";
-import { setupAgnoTools } from "../tool-setup/agno/setup-agno-tools.js";
-import { generateAgentsGuide } from "../documentation/generate-agents-guide.js";
+import { getFrameworkProvider } from "../providers/frameworks/index.js";
+import { buildAgentsGuide } from "../builders/agents-guide-builder.js";
+import { buildMCPConfig } from "../builders/mcp-config-builder.js";
 import { kickoffAssistant } from "../assistant-kickoff/kickoff-assistant.js";
 import type { ProjectConfig } from "../types.js";
 
@@ -24,15 +24,21 @@ import type { ProjectConfig } from "../types.js";
 export const initCommand = async (targetPath: string): Promise<void> => {
   try {
     // ASCII art banner
-    console.log(chalk.cyan(`
+    console.log(
+      chalk.cyan(`
 ███████╗██╗   ██╗██████╗ ███████╗██████╗  █████╗  ██████╗ ███████╗███████╗███╗   ██╗████████╗███████╗
 ██╔════╝██║   ██║██╔══██╗██╔════╝██╔══██╗██╔══██╗██╔════╝ ██╔════╝██╔════╝████╗  ██║╚══██╔══╝██╔════╝
 ███████╗██║   ██║██████╔╝█████╗  ██████╔╝███████║██║  ███╗█████╗  █████╗  ██╔██╗ ██║   ██║   ███████╗
 ╚════██║██║   ██║██╔═══╝ ██╔══╝  ██╔══██╗██╔══██║██║   ██║██╔══╝  ██╔══╝  ██║╚██╗██║   ██║   ╚════██║
 ███████║╚██████╔╝██║     ███████╗██║  ██║██║  ██║╚██████╔╝███████╗███████╗██║ ╚████║   ██║   ███████║
 ╚══════╝ ╚═════╝ ╚═╝     ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚══════╝╚═╝  ╚═══╝   ╚═╝   ╚══════╝
-    `));
-    console.log(chalk.bold.gray("                         Building the future of AI agents\n"));
+    `)
+    );
+    console.log(
+      chalk.bold.gray(
+        "                         Building the future of AI agents\n"
+      )
+    );
 
     const config: ProjectConfig = await collectConfig();
     const absolutePath = path.resolve(process.cwd(), targetPath);
@@ -45,15 +51,19 @@ export const initCommand = async (targetPath: string): Promise<void> => {
       await createProjectStructure({ projectPath: absolutePath, config });
       spinner.text = "Project structure created";
 
-      await setupMCPServers({ projectPath: absolutePath, config });
+      // Set up framework-specific tools
+      const frameworkProvider = getFrameworkProvider({
+        framework: config.framework,
+      });
+      await frameworkProvider.setup({ projectPath: absolutePath });
+      spinner.text = "Framework configuration set up";
+
+      // Build MCP config using builder
+      await buildMCPConfig({ projectPath: absolutePath, config });
       spinner.text = "MCP configuration set up";
 
-      if (config.framework === "agno") {
-        await setupAgnoTools({ projectPath: absolutePath });
-        spinner.text = "Agno configuration set up";
-      }
-
-      await generateAgentsGuide({ projectPath: absolutePath, config });
+      // Build AGENTS.md using builder
+      await buildAgentsGuide({ projectPath: absolutePath, config });
       spinner.text = "AGENTS.md generated";
 
       spinner.succeed(chalk.green("Project setup complete!"));
