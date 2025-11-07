@@ -31,10 +31,11 @@ export const getKnowledge = (): FrameworkKnowledge => ({
 3. Follow Mastra's TypeScript patterns and conventions
 4. Leverage Mastra's integration ecosystem
 
-**Example questions for Mastra MCP:**
-- "How do I create an agent in Mastra?"
-- "What's the best way to handle tools in Mastra?"
-- "How do I manage agent state in Mastra?"
+**Initial setup:**
+1. Use \`pnpx mastra init\` to create a new mastra project.
+2. Then explore the setup it created, the folders, remove what not needed
+3. Proceed with the user definition request to implement the agent and test it out
+4. Open the UI for user to see using \`pnpx mastra dev\`
 
 ---
 `,

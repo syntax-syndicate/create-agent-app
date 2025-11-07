@@ -12,7 +12,7 @@ import type { LanguageKnowledge } from "../index.js";
  * ```
  */
 export const getKnowledge = (): LanguageKnowledge => ({
-  setupInstructions: "Python w/uv + pytest",
+  setupInstructions: "Python with uv + pytest (install uv for them if they don't have it)",
   sourceExtensions: [".py"],
   testFramework: "pytest",
 });

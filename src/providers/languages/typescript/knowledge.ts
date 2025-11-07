@@ -12,7 +12,7 @@ import type { LanguageKnowledge } from "../index.js";
  * ```
  */
 export const getKnowledge = (): LanguageKnowledge => ({
-  setupInstructions: "TypeScript w/pnpm + vitest",
+  setupInstructions: "TypeScript with pnpm + vitest (install pnpm for them if they don't have it)",
   sourceExtensions: [".ts", ".tsx"],
   testFramework: "vitest",
 });
