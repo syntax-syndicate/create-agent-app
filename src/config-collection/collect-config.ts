@@ -9,6 +9,7 @@ import type {
 import { buildLanguageChoices } from "./choice-builders/language-choices.js";
 import { buildFrameworkChoices } from "./choice-builders/framework-choices.js";
 import { buildCodingAssistantChoices } from "./choice-builders/coding-assistant-choices.js";
+import { getAllLLMProviders } from "../providers/llm-providers/index.js";
 import { validateOpenAIKey } from "./validators/openai-key.js";
 import { validateLangWatchKey } from "./validators/langwatch-key.js";
 import { validateProjectGoal } from "./validators/project-goal.js";
@@ -46,16 +47,47 @@ export const collectConfig = async (): Promise<ProjectConfig> => {
       choices: await buildCodingAssistantChoices(),
     });
 
+    const allProviders = getAllLLMProviders();
     const llmProvider = await select<LLMProvider>({
       message: "What LLM provider do you want to use?",
-      choices: [{ name: "OpenAI", value: "openai" }],
+      choices: allProviders.map((p) => ({ name: p.displayName, value: p.id as LLMProvider })),
     });
 
-    const openaiApiKey = await password({
-      message: "Enter your OpenAI API key:",
+    const selectedProvider = allProviders.find((p) => p.id === llmProvider);
+    const providerDisplayName = selectedProvider?.displayName || llmProvider;
+
+    const llmApiKey = await password({
+      message: `Enter your ${providerDisplayName} API key:`,
       mask: "*",
-      validate: validateOpenAIKey,
+      validate: llmProvider === "openai" ? validateOpenAIKey : (value) => {
+        if (!value || value.length < 5) {
+          return "API key is required and must be at least 5 characters";
+        }
+        return true;
+      },
     });
+
+    // Collect additional credentials if the provider needs them
+    let llmAdditionalInputs: Record<string, string> | undefined;
+    if (selectedProvider?.additionalCredentials && selectedProvider.additionalCredentials.length > 0) {
+      llmAdditionalInputs = {};
+
+      for (const credential of selectedProvider.additionalCredentials) {
+        if (credential.type === "password") {
+          llmAdditionalInputs[credential.key] = await password({
+            message: `Enter your ${credential.label}:`,
+            mask: "*",
+            validate: credential.validate,
+          });
+        } else {
+          llmAdditionalInputs[credential.key] = await input({
+            message: `Enter your ${credential.label}:`,
+            default: credential.defaultValue,
+            validate: credential.validate,
+          });
+        }
+      }
+    }
 
     console.log(chalk.gray("\nTo get your LangWatch API key, visit:"));
     console.log(chalk.blue.underline("https://app.langwatch.ai/authorize\n"));
@@ -76,7 +108,8 @@ export const collectConfig = async (): Promise<ProjectConfig> => {
       framework,
       codingAssistant,
       llmProvider,
-      openaiApiKey,
+      llmApiKey,
+      llmAdditionalInputs,
       langwatchApiKey,
       projectGoal,
     };

@@ -1,8 +1,21 @@
 import { OpenAIProvider } from "./openai/index.js";
+import { AnthropicProvider } from "./anthropic/index.js";
+import { GeminiProvider } from "./gemini/index.js";
+import { BedrockProvider } from "./bedrock/index.js";
+import { OpenRouterProvider } from "./openrouter/index.js";
+import { GrokProvider } from "./grok/index.js";
 
 export type EnvVariable = {
   key: string;
   value: string;
+};
+
+export type CredentialInput = {
+  key: string;
+  label: string;
+  type: "password" | "text";
+  defaultValue?: string;
+  validate?: (value: string) => string | boolean;
 };
 
 /**
@@ -19,8 +32,14 @@ export interface LLMProviderProvider {
   readonly id: string;
   readonly displayName: string;
 
+  /** Optional additional credentials this provider needs (beyond the main API key) */
+  readonly additionalCredentials?: CredentialInput[];
+
   /** Returns environment variables needed for this provider */
-  getEnvVariables(params: { apiKey: string }): EnvVariable[];
+  getEnvVariables(params: {
+    apiKey: string;
+    additionalInputs?: Record<string, string>;
+  }): EnvVariable[];
 
   /** Validates API key format/connectivity */
   validateApiKey?(params: { apiKey: string }): Promise<boolean>;
@@ -28,6 +47,11 @@ export interface LLMProviderProvider {
 
 const PROVIDERS: Record<string, LLMProviderProvider> = {
   openai: OpenAIProvider,
+  anthropic: AnthropicProvider,
+  gemini: GeminiProvider,
+  bedrock: BedrockProvider,
+  openrouter: OpenRouterProvider,
+  grok: GrokProvider,
 };
 
 /**

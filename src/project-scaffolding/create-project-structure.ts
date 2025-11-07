@@ -31,8 +31,7 @@ export const createProjectStructure = async ({
 
   await generateEnvFiles({
     projectPath,
-    openaiApiKey: config.openaiApiKey,
-    langwatchApiKey: config.langwatchApiKey,
+    config,
   });
 
   await generateGitignore({ projectPath });

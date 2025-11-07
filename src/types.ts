@@ -9,10 +9,7 @@ export type ProjectConfig = {
   codingAssistant: CodingAssistant;
   llmProvider: LLMProvider;
   llmApiKey: string;
-  llmAdditionalCredentials?: {
-    awsSecretKey?: string;
-    awsRegion?: string;
-  };
+  llmAdditionalInputs?: Record<string, string>;
   langwatchApiKey: string;
   projectGoal: string;
 };
