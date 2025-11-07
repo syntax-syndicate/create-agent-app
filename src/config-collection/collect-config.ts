@@ -24,58 +24,66 @@ import { validateProjectGoal } from "./validators/project-goal.js";
  * ```
  */
 export const collectConfig = async (): Promise<ProjectConfig> => {
-  console.log(chalk.bold.cyan("\n🚀 Welcome to Superagents by LangWatch!\n"));
-  console.log(
-    chalk.gray("Let's set up your production-ready agent project.\n")
-  );
+  try {
+    console.log(chalk.bold.cyan("\n🚀 Welcome to Superagents by LangWatch!\n"));
+    console.log(
+      chalk.gray("Let's set up your production-ready agent project.\n")
+    );
 
-  const language = await select({
-    message: "What programming language do you want to use?",
-    choices: buildLanguageChoices(),
-  });
+    const language = await select({
+      message: "What programming language do you want to use?",
+      choices: buildLanguageChoices(),
+    });
 
-  const framework = await select<AgentFramework>({
-    message: "What agent framework do you want to use?",
-    choices: buildFrameworkChoices({ language }),
-  });
+    const framework = await select<AgentFramework>({
+      message: "What agent framework do you want to use?",
+      choices: buildFrameworkChoices({ language }),
+    });
 
-  const codingAssistant = await select<CodingAssistant>({
-    message: "What coding assistant do you want to use?",
-    choices: [{ name: "Claude Code", value: "claude-code" }],
-  });
+    const codingAssistant = await select<CodingAssistant>({
+      message: "What coding assistant do you want to use?",
+      choices: [{ name: "Claude Code", value: "claude-code" }],
+    });
 
-  const llmProvider = await select<LLMProvider>({
-    message: "What LLM provider do you want to use?",
-    choices: [{ name: "OpenAI", value: "openai" }],
-  });
+    const llmProvider = await select<LLMProvider>({
+      message: "What LLM provider do you want to use?",
+      choices: [{ name: "OpenAI", value: "openai" }],
+    });
 
-  const openaiApiKey = await password({
-    message: "Enter your OpenAI API key:",
-    mask: "*",
-    validate: validateOpenAIKey,
-  });
+    const openaiApiKey = await password({
+      message: "Enter your OpenAI API key:",
+      mask: "*",
+      validate: validateOpenAIKey,
+    });
 
-  console.log(chalk.gray("\nTo get your LangWatch API key, visit:"));
-  console.log(chalk.blue.underline("https://app.langwatch.ai/authorize\n"));
+    console.log(chalk.gray("\nTo get your LangWatch API key, visit:"));
+    console.log(chalk.blue.underline("https://app.langwatch.ai/authorize\n"));
 
-  const langwatchApiKey = await password({
-    message: "Enter your LangWatch API key:",
-    mask: "*",
-    validate: validateLangWatchKey,
-  });
+    const langwatchApiKey = await password({
+      message: "Enter your LangWatch API key:",
+      mask: "*",
+      validate: validateLangWatchKey,
+    });
 
-  const projectGoal = await input({
-    message: "What do you want to build?",
-    validate: validateProjectGoal,
-  });
+    const projectGoal = await input({
+      message: "What do you want to build?",
+      validate: validateProjectGoal,
+    });
 
-  return {
-    language,
-    framework,
-    codingAssistant,
-    llmProvider,
-    openaiApiKey,
-    langwatchApiKey,
-    projectGoal,
-  };
+    return {
+      language,
+      framework,
+      codingAssistant,
+      llmProvider,
+      openaiApiKey,
+      langwatchApiKey,
+      projectGoal,
+    };
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("User force closed")) {
+      console.log(chalk.yellow("\n\nSetup cancelled by user"));
+      process.exit(0);
+    }
+    throw error;
+  }
 };

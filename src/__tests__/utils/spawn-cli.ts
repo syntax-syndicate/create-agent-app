@@ -36,8 +36,8 @@ export const spawnCLI = async (params: {
       stdio: ["pipe", "pipe", "pipe"],
       env: {
         ...process.env,
-        // Force non-interactive mode if needed
-        CI: "true",
+        // Disable inquirer's TTY detection to treat stdin as plain input
+        NODE_ENV: "test",
       },
     });
 
@@ -45,25 +45,40 @@ export const spawnCLI = async (params: {
     let stderr = "";
     let inputIndex = 0;
 
+    let lastOutput = "";
     child.stdout?.on("data", (data) => {
       const text = data.toString();
       stdout += text;
+      process.stdout.write(text);
 
-      // Send next input when we detect a prompt
-      // This is a simple heuristic - adjust based on actual prompt detection
-      if (
-        inputIndex < inputs.length &&
-        (text.includes("?") || text.includes(">"))
-      ) {
+      // Send input when we detect a new complete prompt line
+      const newText = stdout.slice(lastOutput.length);
+      lastOutput = stdout;
+
+      // Detect different prompt types:
+      // - select: "? message" + "⏎ select"
+      // - password: "? message:"
+      // - input: "? message?"
+      const hasPrompt =
+        newText.includes("? ") ||
+        newText.includes(": ") ||
+        newText.includes("⏎ select") ||
+        newText.endsWith("?");
+
+      if (inputIndex < inputs.length && hasPrompt) {
         setTimeout(() => {
-          child.stdin?.write(inputs[inputIndex]);
-          inputIndex++;
-        }, 100);
+          if (inputIndex < inputs.length && child.stdin && inputs[inputIndex]) {
+            child.stdin.write(inputs[inputIndex]);
+            inputIndex++;
+          }
+        }, 150);
       }
     });
 
     child.stderr?.on("data", (data) => {
-      stderr += data.toString();
+      const text = data.toString();
+      stderr += text;
+      process.stderr.write(text);
     });
 
     child.on("close", (code) => {
@@ -80,8 +95,8 @@ export const spawnCLI = async (params: {
 
     // Send first input after a short delay to let CLI initialize
     setTimeout(() => {
-      if (inputs.length > 0 && inputIndex === 0) {
-        child.stdin?.write(inputs[inputIndex]);
+      if (inputs.length > 0 && inputIndex === 0 && child.stdin && inputs[0]) {
+        child.stdin.write(inputs[inputIndex]);
         inputIndex++;
       }
     }, 200);
