@@ -9,7 +9,7 @@ Superagents helps you kickstart agent projects with the right structure, tooling
 - **Agent Testing Pyramid** methodology
 - **LangWatch** integration for prompt management, testing, and evaluation
 - **Framework-specific** configurations (Agno, Mastra)
-- **Coding assistant** setup (Claude Code) pre-configured to be an expert in your chosen framework
+- **Auto-launched coding assistant** (Claude Code, Cursor CLI, or Kilocode CLI) pre-configured as an expert in your chosen framework
 - **Production-ready** project structure
 
 ## Installation
@@ -47,7 +47,7 @@ The CLI will guide you through:
 
 1. **Programming Language**: Python or TypeScript
 2. **Agent Framework**: Agno (Python) or Mastra (TypeScript)
-3. **Coding Assistant**: Claude Code
+3. **Coding Assistant**: Claude Code, Cursor CLI, or Kilocode CLI
 4. **LLM Provider**: OpenAI
 5. **API Keys**: OpenAI and LangWatch
 6. **Project Goal**: What you want to build
@@ -97,17 +97,22 @@ Learn more: https://scenario.langwatch.ai/best-practices/the-agent-testing-pyram
 
 ### 🤖 Coding Assistant Setup
 
-Your coding assistant (e.g., Claude Code) is pre-configured with:
-- Framework-specific knowledge (via MCP or docs)
-- LangWatch best practices
-- Prompt management expertise
-- Testing methodologies
+Your coding assistant (e.g., Claude Code, Cursor CLI, Kilocode CLI) is:
+- **Automatically launched** after project setup with initial prompt
+- Pre-configured with framework-specific knowledge (via MCP or docs)
+- Loaded with LangWatch best practices
+- Equipped with prompt management expertise
+- Set up with testing methodologies
+- Auto-detected - the CLI shows which assistants are installed on your system
 
 ## Requirements
 
 - Node.js 18+
 - npm or pnpm
-- Claude Code (for coding assistant)
+- A coding assistant CLI (one of the following):
+  - [Claude Code](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code-agent) (`claude`)
+  - [Cursor CLI](https://www.cursor.com/) (`cursor-agent`)
+  - [Kilocode CLI](https://www.kilocode.ai/) (`kilocode`)
 - API Keys:
   - OpenAI API key
   - LangWatch API key (get one at https://app.langwatch.ai/authorize)
@@ -135,7 +140,7 @@ pnpm build
 
 ```bash
 superagents init trading-agent
-# Select: Python, Agno, Claude Code, OpenAI
+# Select: Python, Agno, your preferred coding assistant, OpenAI
 # Goal: "Build an agent that can analyze stock prices and provide trading recommendations"
 ```
 
@@ -143,9 +148,19 @@ superagents init trading-agent
 
 ```bash
 superagents init customer-support
-# Select: TypeScript, Mastra, Claude Code, OpenAI
+# Select: TypeScript, Mastra, your preferred coding assistant, OpenAI
 # Goal: "Build a customer support agent that can handle common queries and escalate complex issues"
 ```
+
+### Coding Assistant Auto-Launch
+
+After project setup completes, Superagents **automatically launches** your chosen coding assistant with a customized initial prompt that includes:
+- Your project goal
+- Framework-specific context
+- Best practices guidance
+- Next steps to get started
+
+The CLI detects which coding assistants are installed on your system and shows installed options first in the selection menu. Not installed assistants appear in gray with "(not installed)" but can still be selected.
 
 ## Resources
 

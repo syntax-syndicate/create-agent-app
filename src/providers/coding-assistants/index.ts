@@ -1,4 +1,6 @@
 import { ClaudeCodingAssistantProvider } from "./claude/index.js";
+import { CursorCodingAssistantProvider } from "./cursor/index.js";
+import { KilocodeCodingAssistantProvider } from "./kilocode/index.js";
 
 export type MCPConfigFile = {
   mcpServers: Record<
@@ -13,17 +15,19 @@ export type MCPConfigFile = {
 
 /**
  * Interface for coding assistant providers.
- * Each assistant implements MCP config writing and kickoff instructions.
+ * Each assistant implements MCP config writing and launching.
  *
  * @example
  * ```ts
  * const provider = getCodingAssistantProvider({ assistant: 'claude-code' });
  * await provider.writeMCPConfig({ projectPath, config });
+ * await provider.launch({ projectPath, prompt });
  * ```
  */
 export interface CodingAssistantProvider {
   readonly id: string;
   readonly displayName: string;
+  readonly command: string;
 
   /** Writes MCP config in assistant-specific format/location */
   writeMCPConfig(params: {
@@ -31,12 +35,14 @@ export interface CodingAssistantProvider {
     config: MCPConfigFile;
   }): Promise<void>;
 
-  /** Returns instructions for starting assistant */
-  getKickoffInstructions(): string;
+  /** Launches the assistant with the given prompt */
+  launch(params: { projectPath: string; prompt: string }): Promise<void>;
 }
 
 const PROVIDERS: Record<string, CodingAssistantProvider> = {
   "claude-code": ClaudeCodingAssistantProvider,
+  "cursor-cli": CursorCodingAssistantProvider,
+  kilocode: KilocodeCodingAssistantProvider,
 };
 
 /**

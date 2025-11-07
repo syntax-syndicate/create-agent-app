@@ -8,6 +8,7 @@ import type {
 } from "../types.js";
 import { buildLanguageChoices } from "./choice-builders/language-choices.js";
 import { buildFrameworkChoices } from "./choice-builders/framework-choices.js";
+import { buildCodingAssistantChoices } from "./choice-builders/coding-assistant-choices.js";
 import { validateOpenAIKey } from "./validators/openai-key.js";
 import { validateLangWatchKey } from "./validators/langwatch-key.js";
 import { validateProjectGoal } from "./validators/project-goal.js";
@@ -41,8 +42,8 @@ export const collectConfig = async (): Promise<ProjectConfig> => {
     });
 
     const codingAssistant = await select<CodingAssistant>({
-      message: "What coding assistant do you want to use?",
-      choices: [{ name: "Claude Code", value: "claude-code" }],
+      message: "What is your preferred coding assistant?",
+      choices: await buildCodingAssistantChoices(),
     });
 
     const llmProvider = await select<LLMProvider>({
@@ -66,7 +67,7 @@ export const collectConfig = async (): Promise<ProjectConfig> => {
     });
 
     const projectGoal = await input({
-      message: "What do you want to build?",
+      message: "What is your agent going to do?",
       validate: validateProjectGoal,
     });
 
