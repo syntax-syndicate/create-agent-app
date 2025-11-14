@@ -7,6 +7,7 @@ import type {
   CodingAssistant,
   LLMProvider,
 } from "../types.js";
+import { logger } from "../utils/logger/index.js";
 import { buildLanguageChoices } from "./choice-builders/language-choices.js";
 import { buildFrameworkChoices } from "./choice-builders/framework-choices.js";
 import { buildCodingAssistantChoices } from "./choice-builders/coding-assistant-choices.js";
@@ -29,10 +30,8 @@ import { validateProjectGoal } from "./validators/project-goal.js";
  */
 export const collectConfig = async (): Promise<ProjectConfig> => {
   try {
-    console.log(
-      chalk.gray(
-        "Setting up your agent project following the Superagent Structure.\n"
-      )
+    logger.userInfo(
+      "Setting up your agent project following the Superagent Structure."
     );
 
     const language = await select({
@@ -69,13 +68,11 @@ export const collectConfig = async (): Promise<ProjectConfig> => {
     if (selectedCodingProvider) {
       let availability = await selectedCodingProvider.isAvailable();
       if (!availability.installed && availability.installCommand) {
-        console.log(
-          chalk.yellow(
-            `\n⚠️  ${selectedCodingProvider.displayName} is not installed.`
-          )
+        logger.userWarning(
+          `${selectedCodingProvider.displayName} is not installed.`
         );
-        console.log(chalk.gray("To install it, run:"));
-        console.log(chalk.cyan(`${availability.installCommand}`));
+        logger.userInfo(`To install it, run:`);
+        logger.userInfo(`${availability.installCommand}`);
 
         const shouldInstall = await confirm({
           message: "Would you like me to install it for you?",
@@ -83,7 +80,7 @@ export const collectConfig = async (): Promise<ProjectConfig> => {
         });
 
         if (shouldInstall) {
-          console.log(chalk.gray("Installing..."));
+          logger.userInfo("Installing...");
           try {
             await new Promise<void>((resolve, reject) => {
               const [cmd, ...args] = availability.installCommand!.split(" ");
@@ -105,30 +102,24 @@ export const collectConfig = async (): Promise<ProjectConfig> => {
             // Check availability again after installation
             availability = await selectedCodingProvider.isAvailable();
             if (availability.installed) {
-              console.log(
-                chalk.green(
-                  `✅ ${selectedCodingProvider.displayName} installed successfully!\n`
-                )
+              logger.userSuccess(
+                `${selectedCodingProvider.displayName} installed successfully!`
               );
             } else {
-              console.log(
-                chalk.red(
-                  `❌ Installation may have failed. Please try installing manually.\n`
-                )
+              logger.userError(
+                "Installation may have failed. Please try installing manually."
               );
             }
           } catch (error) {
-            console.log(
-              chalk.red(
-                `❌ Installation failed: ${
-                  error instanceof Error ? error.message : "Unknown error"
-                }`
-              )
+            logger.userError(
+              `Installation failed: ${
+                error instanceof Error ? error.message : "Unknown error"
+              }`
             );
-            console.log(chalk.gray("Please try installing manually.\n"));
+            logger.userInfo("Please try installing manually.");
           }
         } else {
-          console.log();
+          // Empty line for spacing - no logging needed
         }
       }
     }
@@ -137,10 +128,8 @@ export const collectConfig = async (): Promise<ProjectConfig> => {
     const providerDisplayName = selectedProvider?.displayName || llmProvider;
 
     if (selectedProvider?.apiKeyUrl) {
-      console.log(
-        chalk.gray(`\nTo get your ${providerDisplayName} API key, visit:`)
-      );
-      console.log(chalk.blue.underline(`${selectedProvider.apiKeyUrl}\n`));
+      logger.userInfo(`To get your ${providerDisplayName} API key, visit:`);
+      logger.userInfo(`${selectedProvider.apiKeyUrl}`);
     }
 
     const llmApiKey = await password({
@@ -182,8 +171,8 @@ export const collectConfig = async (): Promise<ProjectConfig> => {
       }
     }
 
-    console.log(chalk.gray("\nTo get your LangWatch API key, visit:"));
-    console.log(chalk.blue.underline("https://app.langwatch.ai/authorize\n"));
+    logger.userInfo("To get your LangWatch API key, visit:");
+    logger.userInfo("https://app.langwatch.ai/authorize");
 
     const langwatchApiKey = await password({
       message:
@@ -192,14 +181,10 @@ export const collectConfig = async (): Promise<ProjectConfig> => {
       validate: validateLangWatchKey,
     });
 
-    console.log(
-      chalk.gray("\nTo get your Smithery API key (optional), visit:")
-    );
-    console.log(chalk.blue.underline("https://smithery.ai/account/api-keys\n"));
-    console.log(
-      chalk.gray(
-        "Smithery enables your coding agent to auto-discover MCP tools to integrate with your agent.\n"
-      )
+    logger.userInfo("To get your Smithery API key (optional), visit:");
+    logger.userInfo("https://smithery.ai/account/api-keys");
+    logger.userInfo(
+      "Smithery enables your coding agent to auto-discover MCP tools to integrate with your agent."
     );
 
     const smitheryApiKey = await password({
@@ -239,7 +224,7 @@ export const collectConfig = async (): Promise<ProjectConfig> => {
     };
   } catch (error) {
     if (error instanceof Error && error.message.includes("User force closed")) {
-      console.log(chalk.yellow("\n\nSetup cancelled by user"));
+      logger.userWarning("Setup cancelled by user");
       process.exit(0);
     }
     throw error;
