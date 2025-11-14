@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import { getAllCodingAssistants } from "../../providers/coding-assistants/index.js";
 import type { CodingAssistant } from "../../types.js";
-import { detectInstalledAgents } from "../detect-installed-agents.js";
+import { CodingAssistantUtils } from "../../utils/coding-assistant.util";
 
 type Choice = {
   name: string;
@@ -25,7 +25,7 @@ type Choice = {
  */
 export const buildCodingAssistantChoices = async (): Promise<Choice[]> => {
   const assistants = getAllCodingAssistants();
-  const installedMap = await detectInstalledAgents();
+  const installedMap = await CodingAssistantUtils.detectInstalledAgents();
 
   const installed: Choice[] = [];
   const notInstalled: Choice[] = [];

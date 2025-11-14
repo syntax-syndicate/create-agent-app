@@ -1,6 +1,7 @@
 import * as fs from "fs/promises";
 import * as path from "path";
-import { launchWithTerminalControl } from "../../../utils/process-replacement.js";
+import { ProcessUtils } from "../../../utils/process.util";
+import { CliUtils } from "../../../utils/cli.util";
 import type { CodingAssistantProvider } from "../index.js";
 
 /**
@@ -12,6 +13,19 @@ export const ClaudeCodingAssistantProvider: CodingAssistantProvider = {
   displayName: "Claude Code",
   command: "claude",
 
+  async isAvailable(): Promise<{
+    installed: boolean;
+    installCommand?: string;
+  }> {
+    const installed = await CliUtils.isCommandAvailable("claude");
+    return {
+      installed,
+      installCommand: installed
+        ? undefined
+        : "npm install -g @anthropic-ai/claude-code",
+    };
+  },
+
   async writeMCPConfig({ projectPath, config }) {
     const mcpConfigPath = path.join(projectPath, ".mcp.json");
     await fs.writeFile(mcpConfigPath, JSON.stringify(config, null, 2));
@@ -22,21 +36,32 @@ export const ClaudeCodingAssistantProvider: CodingAssistantProvider = {
     await fs.writeFile(claudeMdPath, claudeMdContent);
   },
 
-  async launch({ projectPath, prompt }: { projectPath: string; prompt: string }): Promise<void> {
+  async launch({
+    projectPath,
+    prompt,
+  }: {
+    projectPath: string;
+    prompt: string;
+  }): Promise<void> {
     const chalk = (await import("chalk")).default;
 
     try {
       console.log(chalk.bold.cyan(`🤖 Launching ${this.displayName}...\n`));
       // Launch claude with full terminal control
       // This blocks until claude exits
-      launchWithTerminalControl("claude", [prompt], { cwd: projectPath });
-      console.log(chalk.bold.green('\n✨ Session complete!\n'));
+      ProcessUtils.launchWithTerminalControl("claude", [prompt], {
+        cwd: projectPath,
+      });
+      console.log(chalk.bold.green("\n✨ Session complete!\n"));
     } catch (error) {
       if (error instanceof Error) {
-        console.error(chalk.red(`\n❌ Failed to launch ${this.displayName}: ${error.message}`));
+        console.error(
+          chalk.red(
+            `\n❌ Failed to launch ${this.displayName}: ${error.message}`
+          )
+        );
       }
       throw error;
     }
   },
 };
-

@@ -21,6 +21,10 @@ export type MCPConfigFile = {
  * @example
  * ```ts
  * const provider = getCodingAssistantProvider({ assistant: 'claude-code' });
+ * const available = await provider.isAvailable();
+ * if (!available.installed) {
+ *   console.log(`Install with: ${available.installCommand}`);
+ * }
  * await provider.writeMCPConfig({ projectPath, config });
  * await provider.launch({ projectPath, prompt });
  * ```
@@ -29,6 +33,12 @@ export interface CodingAssistantProvider {
   readonly id: string;
   readonly displayName: string;
   readonly command: string;
+
+  /**
+   * Checks if the coding assistant is available
+   * @returns Promise resolving to an object with installation status and install command if not installed
+   */
+  isAvailable(): Promise<{ installed: boolean; installCommand?: string }>;
 
   /** Writes MCP config in assistant-specific format/location */
   writeMCPConfig(params: {

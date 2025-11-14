@@ -12,6 +12,14 @@ export const NoneCodingAssistantProvider: CodingAssistantProvider = {
   displayName: "None - I will prompt it myself",
   command: "",
 
+  async isAvailable(): Promise<{
+    installed: boolean;
+    installCommand?: string;
+  }> {
+    // "None" option is always available since it doesn't require installation
+    return { installed: true };
+  },
+
   async writeMCPConfig({ projectPath, config }) {
     // Write MCP config to .mcp.json (for Claude Code and others)
     const mcpConfigPath = path.join(projectPath, ".mcp.json");

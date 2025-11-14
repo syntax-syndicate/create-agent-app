@@ -17,3 +17,4 @@ DIRECTIVES:
 - Classes should be small
 - functions, classes, methods should have TSDoc with example usage
 - top-level directories represent core features, and should each have a README.md that describes the feature and its purpose.
+- Never use .js extensions in import statements

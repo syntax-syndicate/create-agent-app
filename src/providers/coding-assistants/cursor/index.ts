@@ -11,6 +11,14 @@ export const CursorCodingAssistantProvider: CodingAssistantProvider = {
   displayName: "Cursor",
   command: "",
 
+  async isAvailable(): Promise<{
+    installed: boolean;
+    installCommand?: string;
+  }> {
+    // Cursor is always available as it's an IDE, not a CLI tool
+    return { installed: true };
+  },
+
   async writeMCPConfig({ projectPath, config }) {
     // Create .cursor directory
     const cursorDir = path.join(projectPath, ".cursor");
