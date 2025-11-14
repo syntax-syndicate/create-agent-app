@@ -1,5 +1,6 @@
-import { select, input, password } from "@inquirer/prompts";
+import { select, input, password, confirm } from "@inquirer/prompts";
 import chalk from "chalk";
+import { spawn } from "child_process";
 import type {
   ProjectConfig,
   AgentFramework,
@@ -66,7 +67,7 @@ export const collectConfig = async (): Promise<ProjectConfig> => {
     );
 
     if (selectedCodingProvider) {
-      const availability = await selectedCodingProvider.isAvailable();
+      let availability = await selectedCodingProvider.isAvailable();
       if (!availability.installed && availability.installCommand) {
         console.log(
           chalk.yellow(
@@ -74,7 +75,61 @@ export const collectConfig = async (): Promise<ProjectConfig> => {
           )
         );
         console.log(chalk.gray("To install it, run:"));
-        console.log(chalk.cyan(`${availability.installCommand}\n`));
+        console.log(chalk.cyan(`${availability.installCommand}`));
+
+        const shouldInstall = await confirm({
+          message: "Would you like me to install it for you?",
+          default: true,
+        });
+
+        if (shouldInstall) {
+          console.log(chalk.gray("Installing..."));
+          try {
+            await new Promise<void>((resolve, reject) => {
+              const [cmd, ...args] = availability.installCommand!.split(" ");
+              const child = spawn(cmd, args, { stdio: "inherit" });
+
+              child.on("close", (code: number) => {
+                if (code === 0) {
+                  resolve();
+                } else {
+                  reject(
+                    new Error(`Installation failed with exit code ${code}`)
+                  );
+                }
+              });
+
+              child.on("error", reject);
+            });
+
+            // Check availability again after installation
+            availability = await selectedCodingProvider.isAvailable();
+            if (availability.installed) {
+              console.log(
+                chalk.green(
+                  `✅ ${selectedCodingProvider.displayName} installed successfully!\n`
+                )
+              );
+            } else {
+              console.log(
+                chalk.red(
+                  `❌ Installation may have failed. Please try installing manually.\n`
+                )
+              );
+            }
+          } catch (error) {
+            console.log(
+              chalk.red(
+                `❌ Installation failed: ${
+                  error instanceof Error ? error.message : "Unknown error"
+                }`
+              )
+            );
+            console.log(chalk.gray("Please try installing manually.\n"));
+          }
+        } else {
+          console.log();
+        }
       }
     }
 
