@@ -30,7 +30,7 @@ import { validateProjectGoal } from "./validators/project-goal.js";
 export const collectConfig = async (): Promise<ProjectConfig> => {
   try {
     logger.userInfo(
-      "Setting up your agent project following the Superagent Structure."
+      "Setting up your agent project following the Better Agent Structure.\n"
     );
 
     const language = await select({

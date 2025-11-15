@@ -61,8 +61,6 @@ export const initCommand = async (targetPath: string, debug = false): Promise<vo
     // Show banner
     showBanner();
 
-    logger.userInfo("Building the future of AI agents");
-
     const configTimer = logger.startTimer('config-collection');
     const config: ProjectConfig = await collectConfig();
     configTimer();

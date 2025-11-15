@@ -1,6 +1,6 @@
 # Project Structure
 
-The Superagent Structure ensures industry best practices, making your agent ready for production:
+The Better Agent Structure ensures industry best practices, making your agent ready for production:
 
 - [Scenario](https://github.com/langwatch/scenario) agent tests written for every feature to ensure agent behaviour
 - Versioning of the prompts for collaboration

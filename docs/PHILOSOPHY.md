@@ -8,7 +8,7 @@ Better Agents promotes the **Agent Testing Pyramid** approach:
 
 Learn more: https://scenario.langwatch.ai/best-practices/the-agent-testing-pyramid
 
-## The Superagent Structure
+## The Better Agent Structure
 
 ```
 my-agent-project/

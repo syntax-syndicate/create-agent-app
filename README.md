@@ -1,14 +1,52 @@
-![](/images/cover-image.png)
-
 # Better Agents
 
 Better Agents is a CLI tool and a set of standards for agent building.
 
-It supercharges your coding assistant (Claude Code, Cursor, Kilocode, etc), making it an expert in any agent framework you choose (Agno, Mastra, etc) and all their best practices, being able to autodiscover MCP tools to augment your agent.
+It supercharges your coding assistant (Kilocode, Claude Code, Cursor, etc), making it an expert in any agent framework you choose (Agno, Mastra, etc) and all their best practices.
 
-The Superagent Structure ensures industry best practices, making your agent ready for production with proper testing, observability, and prompt management.
+It's the best way to start any new agent project.
 
-## Installation
+![](/images/cover-image.png)
+
+The Better Agent Structure and generated AGENTS.md ensures industry best practices, making your agent ready for production:
+- [Scenario](https://github.com/langwatch/scenario) agent tests written for every feature to ensure agent behaviour
+- Versioning of the prompts for collaboration
+- Evaluation notebooks for measuring specific prompts performance
+- Already instrumented for full observability
+- Standardization of structure for better project maintainability
+
+## The Better Agent Structure
+
+```
+my-agent-project/
+├── app/ (or src/)           # The actual agent code, according to the chosen framework
+├── tests/
+│   ├── evaluations/         # Jupyter notebooks for evaluations
+│   │   └── example_eval.ipynb
+│   └── scenarios/           # End-to-end scenario tests
+│       └── example_scenario.test.{py,ts}
+├── prompts/                 # Versioned prompt files for team collaboration
+│   └── sample_prompt.yaml
+├── prompts.json             # Prompt registry
+├── .mcp.json                # MCP server configuration
+├── AGENTS.md                # Development guidelines
+├── .env                     # Environment variables
+└── .gitignore
+```
+
+The structure and guidelines on `AGENTS.md` ensure every new feature required for the coding assistant is properly tested, evaluated, and that the prompts are versioned.
+
+The `.mcp.json` comes with all the right MCPs set up so you coding assistant becomes an expert in your framework of choice and know where to find new tools.
+
+[`scenarios/`](https://github.com/langwatch/scenario) tests guarantee the agent behaves as expected, which simulates a conversation with the agent making sure it does what expected.
+
+`evaluations/` notebooks holds dataset and notebooks for evaluating pieces of your agent pipeline such as a RAG or classification tasks it must do
+
+Finally, `prompts/` hold all your versioned prompts in yaml format, synced and controlled by `prompts.json`, to allow for playground and team collaboration.
+
+## Getting Started
+
+### Installation
 
 ```bash
 npm install -g @langwatch/better-agents
@@ -19,19 +57,6 @@ Or use with npx:
 ```bash
 npx @langwatch/better-agents init my-agent-project
 ```
-
-## Documentation
-
-- **[Getting Started](docs/GETTING-STARTED.md)** - Quick start guide (2 minutes)
-- **[Walkthrough](docs/WALKTHROUGH.md)** - Detailed step-by-step guide
-- **[Project Structure](docs/STRUCTURE.md)** - Understanding the Superagent structure
-- **[Features](docs/FEATURES.md)** - Key features and capabilities
-- **[Usage](docs/USAGE.md)** - CLI usage and examples
-- **[Philosophy](docs/PHILOSOPHY.md)** - Agent Testing Pyramid approach
-- **[Contributing](docs/CONTRIBUTING.md)** - How to contribute to Better Agents
-- **[Changelog](CHANGELOG.md)** - Version history
-
-## Usage
 
 ### Initialize a new project
 
@@ -45,9 +70,20 @@ better-agents init my-awesome-agent
 
 The CLI will guide you through selecting your programming language, agent framework, coding assistant, LLM provider, and API keys.
 
+## Documentation
+
+- **[Getting Started](docs/GETTING-STARTED.md)** - Quick start guide (2 minutes)
+- **[Walkthrough](docs/WALKTHROUGH.md)** - Detailed step-by-step guide
+- **[Project Structure](docs/STRUCTURE.md)** - Understanding the Better Agent structure
+- **[Features](docs/FEATURES.md)** - Key features and capabilities
+- **[Usage](docs/USAGE.md)** - CLI usage and examples
+- **[Philosophy](docs/PHILOSOPHY.md)** - Agent Testing Pyramid approach
+- **[Contributing](docs/CONTRIBUTING.md)** - How to contribute to Better Agents
+- **[Changelog](CHANGELOG.md)** - Version history
+
 ## Requirements
 
-- Node.js 18+
+- Node.js 22+
 - npm or pnpm
 - A coding assistant (one of the following):
   - [Claude Code](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code-agent) (`claude` CLI)
