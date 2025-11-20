@@ -10,6 +10,7 @@ permissions:
   issues: write # This is important for label creation
   contents: write
   pull-requests: write
+  id-token: write # Required for OIDC publishing in called workflow
 
 jobs:
   release-please:
